@@ -10,6 +10,7 @@ import (
 
 type Service interface {
 	RegisterCard(ctx context.Context, card model.Card) error
+	FindById(ctx context.Context, cardId string) (model.Card, error)
 }
 
 type service struct {
@@ -20,6 +21,10 @@ func NewService(repository card.Respository) Service {
 	return service{
 		repository: repository,
 	}
+}
+
+func (s service) FindById(ctx context.Context, cardId string) (model.Card, error) {
+	return s.repository.FindById(ctx, cardId)
 }
 
 func (s service) RegisterCard(ctx context.Context, card model.Card) error {

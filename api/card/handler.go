@@ -19,9 +19,24 @@ func NewHandler(ctx context.Context, service card.Service, app *fiber.App) handl
 		service: service,
 	}
 
+	app.Get("/card/:id", handler.FindById)
 	app.Post("/card/register", handler.RegisterCard)
 
 	return handler
+}
+
+func (h handler) FindById(c fiber.Ctx) error {
+	cardId := c.Params("id")
+
+	response, err := h.service.FindById(c.Context(), cardId)
+
+	if err != nil {
+		panic("Could not find card")
+	}
+
+	c.JSON(response)
+
+	return nil
 }
 
 func (h handler) RegisterCard(c fiber.Ctx) error {
