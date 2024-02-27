@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	api "github.com/IgorCooli/xpense/api/expense"
@@ -28,6 +29,10 @@ func main() {
 	app := fiber.New()
 
 	api.NewHandler(ctx, service, app)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000" // Porta padrão se não estiver definida
+	}
 
-	app.Listen(":3000")
+	app.Listen(":" + port)
 }
