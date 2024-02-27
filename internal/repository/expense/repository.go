@@ -10,6 +10,7 @@ import (
 
 type Repository interface {
 	InsertOne(ctx context.Context, expense model.Expense) error
+	InsertMany(ctx context.Context, expenses []model.Expense) error
 }
 
 func NewRepository(client *mongo.Client) Repository {
@@ -28,6 +29,22 @@ func (r mongoRepository) InsertOne(ctx context.Context, expense model.Expense) e
 
 	if err != nil {
 		panic("Could not insert item")
+	}
+
+	fmt.Println(result)
+	return nil
+}
+
+func (r mongoRepository) InsertMany(ctx context.Context, expenses []model.Expense) error {
+
+	var input []interface{}
+	for _, exp := range expenses {
+		input = append(input, exp)
+	}
+
+	result, err := r.expenseDB.InsertMany(ctx, input)
+	if err != nil {
+		panic("Could not insert items")
 	}
 
 	fmt.Println(result)

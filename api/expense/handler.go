@@ -59,10 +59,9 @@ func (h handler) GetAllExpenses(c fiber.Ctx) error {
 
 func (h handler) AddExpense(c fiber.Ctx) error {
 	var body model.Expense
-
 	json.Unmarshal(c.Body(), &body)
 
-	h.service.InsertOne(c.Context(), body)
+	h.service.AddExpense(c.Context(), body)
 
 	return nil
 }

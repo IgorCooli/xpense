@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
@@ -31,7 +30,7 @@ func main() {
 	api.NewHandler(ctx, service, app)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000" // Porta padrão se não estiver definida
+		port = "3000"
 	}
 
 	app.Listen(":" + port)
