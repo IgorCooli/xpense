@@ -1,4 +1,4 @@
-package api
+package expense
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"fmt"
 
 	"github.com/IgorCooli/xpense/internal/business/model"
-	service "github.com/IgorCooli/xpense/internal/business/service/expense"
+	"github.com/IgorCooli/xpense/internal/business/service/expense"
 	"github.com/gofiber/fiber/v3"
 )
 
 type handler struct {
-	service service.Service
+	service expense.Service
 }
 
-func NewHandler(ctx context.Context, service service.Service, app *fiber.App) handler {
+func NewHandler(ctx context.Context, service expense.Service, app *fiber.App) handler {
 
 	handler := handler{
 		service: service,

@@ -1,4 +1,4 @@
-package service
+package expense
 
 import (
 	"context"
@@ -55,8 +55,8 @@ func buildExpenseInstallment(expense model.Expense, number int) model.Expense {
 		Description:  newDescription,
 		Type:         expense.Type,
 		Method:       expense.Method,
-		Card:         expense.Card,
-		CardBrand:    expense.CardBrand,
+		// Card:         expense.Card,
+		// CardBrand:    expense.CardBrand,
 	}
 	return expenseItem
 }
