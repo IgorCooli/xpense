@@ -16,7 +16,7 @@ type mongoRepository struct {
 	userDB *mongo.Collection
 }
 
-func NewUserRepository(client *mongo.Client) Respository {
+func NewRepository(client *mongo.Client) Respository {
 	return mongoRepository{
 		userDB: client.Database("TCCMongoDB").Collection("user"),
 	}

@@ -5,10 +5,13 @@ import (
 	"os"
 	"time"
 
+	cardApi "github.com/IgorCooli/xpense/api/card"
 	expenseApi "github.com/IgorCooli/xpense/api/expense"
 	userApi "github.com/IgorCooli/xpense/api/user"
+	cardService "github.com/IgorCooli/xpense/internal/business/service/card"
 	expenseService "github.com/IgorCooli/xpense/internal/business/service/expense"
 	userService "github.com/IgorCooli/xpense/internal/business/service/user"
+	cardRepository "github.com/IgorCooli/xpense/internal/repository/card"
 	expenseRepository "github.com/IgorCooli/xpense/internal/repository/expense"
 	userRepository "github.com/IgorCooli/xpense/internal/repository/user"
 	"github.com/gofiber/fiber/v3"
@@ -22,21 +25,11 @@ func main() {
 
 	dbClient := setupDb(ctx)
 
-	// test := model.User{
-	// 	ID:        "testId",
-	// 	FirstName: "Igor",
-	// 	LastName:  "Oliveira",
-	// 	Email:     "igorcooli@gmail.com",
-	// 	Password:  "1234",
-	// }
-
-	// userRepository.InsertOne(ctx, test)
-
 	app := fiber.New()
 
 	injectExpenseApi(ctx, dbClient, app)
-
 	injectUserApi(ctx, dbClient, app)
+	injectCardApi(ctx, dbClient, app)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -62,7 +55,13 @@ func injectExpenseApi(ctx context.Context, dbClient *mongo.Client, app *fiber.Ap
 }
 
 func injectUserApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App) {
-	userRepository := userRepository.NewUserRepository(dbClient)
+	userRepository := userRepository.NewRepository(dbClient)
 	userService := userService.NewService(userRepository)
 	userApi.NewHandler(ctx, userService, app)
+}
+
+func injectCardApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App) {
+	cardRepository := cardRepository.NewCardRepository(dbClient)
+	cardService := cardService.NewService(cardRepository)
+	cardApi.NewHandler(ctx, cardService, app)
 }
