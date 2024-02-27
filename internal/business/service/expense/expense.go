@@ -52,6 +52,7 @@ func buildExpenseInstallment(expense model.Expense, number int) model.Expense {
 	newDate := handleDate(expense.PaymentDate, number)
 
 	expenseItem := model.Expense{
+		ID:           expense.ID,
 		Value:        expense.Value,
 		PaymentDate:  newDate,
 		Installments: expense.Installments,
