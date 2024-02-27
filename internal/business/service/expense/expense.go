@@ -7,6 +7,7 @@ import (
 
 	"github.com/IgorCooli/xpense/internal/business/model"
 	repository "github.com/IgorCooli/xpense/internal/repository/expense"
+	"github.com/google/uuid"
 )
 
 type Service interface {
@@ -24,6 +25,8 @@ func NewService(repository repository.Repository) Service {
 }
 
 func (s service) AddExpense(ctx context.Context, expense model.Expense) error {
+	buildExpenseId(&expense)
+
 	if expense.Installments == 1 {
 		return s.repository.InsertOne(ctx, expense)
 	}
@@ -55,8 +58,7 @@ func buildExpenseInstallment(expense model.Expense, number int) model.Expense {
 		Description:  newDescription,
 		Type:         expense.Type,
 		Method:       expense.Method,
-		// Card:         expense.Card,
-		// CardBrand:    expense.CardBrand,
+		Card:         expense.Card,
 	}
 	return expenseItem
 }
@@ -73,4 +75,16 @@ func buildDescriptionWithInstallments(number int, expense model.Expense) string 
 	installmentDescription := fmt.Sprintf("%v/%v", number, expense.Installments)
 	newDescription := fmt.Sprintf("%s %s", expense.Description, installmentDescription)
 	return newDescription
+}
+
+func buildExpenseId(expense *model.Expense) {
+	UUID, err := uuid.NewUUID()
+
+	if err != nil {
+		panic("Could not generate uuid")
+	}
+
+	expenseId := UUID.String()
+
+	expense.ID = expenseId
 }
