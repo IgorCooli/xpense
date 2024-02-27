@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/IgorCooli/xpense/internal/business/model"
-	"github.com/IgorCooli/xpense/internal/repository/expense"
+	api "github.com/IgorCooli/xpense/api/expense"
+	service "github.com/IgorCooli/xpense/internal/business/service/expense"
+	repository "github.com/IgorCooli/xpense/internal/repository/expense"
+	"github.com/gofiber/fiber/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,14 +22,12 @@ func main() {
 		panic("Could not connect to dabase")
 	}
 
-	repo := expense.NewRepository(dbClient)
+	repo := repository.NewRepository(dbClient)
+	service := service.NewService(repo)
 
-	model := model.Expense{
-		ID:           "1",
-		Value:        10.00,
-		PaymentDate:  time.Now(),
-		Installments: 1,
-	}
+	app := fiber.New()
 
-	repo.InsertOne(ctx, model)
+	api.NewHandler(ctx, service, app)
+
+	app.Listen(":3000")
 }

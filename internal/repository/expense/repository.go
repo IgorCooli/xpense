@@ -1,4 +1,4 @@
-package expense
+package repository
 
 import (
 	"context"
