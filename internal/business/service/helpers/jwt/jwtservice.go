@@ -18,7 +18,7 @@ func NewJwtService(secretKey string) JwtService {
 
 func (s JwtService) GenerateJwt(userId string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId": userId,
+		"issuer": userId,
 		"exp":    time.Now().Add(time.Hour * 1).Unix(),
 	})
 
