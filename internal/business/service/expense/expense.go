@@ -45,9 +45,10 @@ func (s service) Search(ctx context.Context, userId string, month string, year s
 
 func buildInstallments(expense model.Expense) []model.Expense {
 	var installments []model.Expense
-	//TODO dividir o valor total nas parcelas
+	newValue := expense.Value / float32(expense.Installments)
+
 	for i := 0; i < int(expense.Installments); i++ {
-		expenseItem := buildExpenseInstallment(expense, i+1)
+		expenseItem := buildExpenseInstallment(expense, i+1, newValue)
 
 		installments = append(installments, expenseItem)
 	}
@@ -55,13 +56,13 @@ func buildInstallments(expense model.Expense) []model.Expense {
 	return installments
 }
 
-func buildExpenseInstallment(expense model.Expense, number int) model.Expense {
+func buildExpenseInstallment(expense model.Expense, number int, value float32) model.Expense {
 	newDescription := buildDescriptionWithInstallments(number, expense)
 	newDate := handleDate(expense.PaymentDate, number)
 
 	expenseItem := model.Expense{
 		ID:           expense.ID,
-		Value:        expense.Value,
+		Value:        value,
 		PaymentDate:  newDate,
 		Installments: expense.Installments,
 		Description:  newDescription,
