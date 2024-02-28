@@ -3,6 +3,7 @@ package expense
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/IgorCooli/xpense/internal/business/model"
@@ -12,7 +13,7 @@ import (
 
 type Service interface {
 	AddExpense(ctx context.Context, expense model.Expense) error
-	Search(ctx context.Context, userId string) []model.Expense
+	Search(ctx context.Context, userId string, month string, year string) []model.Expense
 }
 
 type service struct {
@@ -27,6 +28,7 @@ func NewService(repository repository.Repository) Service {
 
 func (s service) AddExpense(ctx context.Context, expense model.Expense) error {
 	buildExpenseId(&expense)
+	resolveMonthYear(&expense)
 
 	if expense.Installments == 1 {
 		return s.repository.InsertOne(ctx, expense)
@@ -35,6 +37,10 @@ func (s service) AddExpense(ctx context.Context, expense model.Expense) error {
 	installments := buildInstallments(expense)
 
 	return s.repository.InsertMany(ctx, installments)
+}
+
+func (s service) Search(ctx context.Context, userId string, month string, year string) []model.Expense {
+	return s.repository.Search(ctx, userId, month, year)
 }
 
 func buildInstallments(expense model.Expense) []model.Expense {
@@ -63,6 +69,8 @@ func buildExpenseInstallment(expense model.Expense, number int) model.Expense {
 		Method:       expense.Method,
 		Card:         expense.Card,
 	}
+
+	resolveMonthYear(&expenseItem)
 	return expenseItem
 }
 
@@ -91,7 +99,7 @@ func buildExpenseId(expense *model.Expense) {
 
 	expense.ID = expenseId
 }
-
-func (s service) Search(ctx context.Context, userId string) []model.Expense {
-	return s.repository.Search(ctx, userId)
+func resolveMonthYear(expense *model.Expense) {
+	expense.Month = strconv.Itoa(int(expense.PaymentDate.Month()))
+	expense.Year = strconv.Itoa(expense.PaymentDate.Year())
 }

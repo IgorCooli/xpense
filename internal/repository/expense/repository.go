@@ -12,7 +12,7 @@ import (
 type Repository interface {
 	InsertOne(ctx context.Context, expense model.Expense) error
 	InsertMany(ctx context.Context, expenses []model.Expense) error
-	Search(ctx context.Context, userId string) []model.Expense
+	Search(ctx context.Context, userId string, month string, year string) []model.Expense
 }
 
 func NewRepository(client *mongo.Client) Repository {
@@ -53,10 +53,13 @@ func (r mongoRepository) InsertMany(ctx context.Context, expenses []model.Expens
 	return nil
 }
 
-func (r mongoRepository) Search(ctx context.Context, userId string) []model.Expense {
+func (r mongoRepository) Search(ctx context.Context, userId string, month string, year string) []model.Expense {
 	var results []model.Expense
+
 	filter := bson.D{
 		{"card.userid", userId},
+		{"month", month},
+		{"year", year},
 	}
 
 	cursor, err := r.expenseDB.Find(ctx, filter)

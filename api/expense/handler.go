@@ -40,8 +40,14 @@ func (h handler) HelloWorld(c fiber.Ctx) error {
 
 func (h handler) SearchExpenses(c fiber.Ctx) error {
 	userId := c.Query("userId")
+	month := c.Query("month")
+	year := c.Query("year")
 
-	result := h.service.Search(c.Context(), userId)
+	if userId == "" || month == "" || year == "" {
+		panic("The query params are not complete")
+	}
+
+	result := h.service.Search(c.Context(), userId, month, year)
 
 	c.JSON(result)
 	return nil
