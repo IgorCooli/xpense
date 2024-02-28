@@ -12,6 +12,7 @@ import (
 
 type Service interface {
 	AddExpense(ctx context.Context, expense model.Expense) error
+	Search(ctx context.Context, userId string) []model.Expense
 }
 
 type service struct {
@@ -38,6 +39,7 @@ func (s service) AddExpense(ctx context.Context, expense model.Expense) error {
 
 func buildInstallments(expense model.Expense) []model.Expense {
 	var installments []model.Expense
+	//TODO dividir o valor total nas parcelas
 	for i := 0; i < int(expense.Installments); i++ {
 		expenseItem := buildExpenseInstallment(expense, i+1)
 
@@ -88,4 +90,8 @@ func buildExpenseId(expense *model.Expense) {
 	expenseId := UUID.String()
 
 	expense.ID = expenseId
+}
+
+func (s service) Search(ctx context.Context, userId string) []model.Expense {
+	return s.repository.Search(ctx, userId)
 }

@@ -21,7 +21,7 @@ func NewHandler(ctx context.Context, service expense.Service, app *fiber.App) ha
 	}
 
 	app.Get("/", handler.HelloWorld)
-	app.Get("/expense", handler.GetAllExpenses)
+	app.Get("/expense/search", handler.SearchExpenses)
 	app.Post("/expense", handler.AddExpense)
 
 	return handler
@@ -38,22 +38,12 @@ func (h handler) HelloWorld(c fiber.Ctx) error {
 	return nil
 }
 
-func (h handler) GetAllExpenses(c fiber.Ctx) error {
-	// location, _ := time.LoadLocation("America/Sao_Paulo")
+func (h handler) SearchExpenses(c fiber.Ctx) error {
+	userId := c.Query("userId")
 
-	// model := model.Expense{
-	// 	ID:           "2",
-	// 	Value:        10.00,
-	// 	PaymentDate:  time.Now().In(location),
-	// 	Installments: 1,
-	// }
+	result := h.service.Search(c.Context(), userId)
 
-	// err := h.service.InsertOne(c.Context(), model)
-
-	// if err != nil {
-	// 	panic("")
-	// }
-
+	c.JSON(result)
 	return nil
 }
 

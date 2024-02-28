@@ -5,12 +5,14 @@ import (
 	"fmt"
 
 	"github.com/IgorCooli/xpense/internal/business/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Repository interface {
 	InsertOne(ctx context.Context, expense model.Expense) error
 	InsertMany(ctx context.Context, expenses []model.Expense) error
+	Search(ctx context.Context, userId string) []model.Expense
 }
 
 func NewRepository(client *mongo.Client) Repository {
@@ -49,4 +51,28 @@ func (r mongoRepository) InsertMany(ctx context.Context, expenses []model.Expens
 
 	fmt.Println(result)
 	return nil
+}
+
+func (r mongoRepository) Search(ctx context.Context, userId string) []model.Expense {
+	var results []model.Expense
+	filter := bson.D{
+		{"card.userid", userId},
+	}
+
+	cursor, err := r.expenseDB.Find(ctx, filter)
+	if err != nil {
+		return []model.Expense{}
+	}
+
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var result model.Expense
+		if err := cursor.Decode(&result); err != nil {
+			panic(err)
+		}
+		results = append(results, result)
+	}
+
+	return results
 }
