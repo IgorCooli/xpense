@@ -10,6 +10,7 @@ import (
 	userApi "github.com/IgorCooli/xpense/api/user"
 	cardService "github.com/IgorCooli/xpense/internal/business/service/card"
 	expenseService "github.com/IgorCooli/xpense/internal/business/service/expense"
+	passwordService "github.com/IgorCooli/xpense/internal/business/service/helpers/password"
 	userService "github.com/IgorCooli/xpense/internal/business/service/user"
 	cardRepository "github.com/IgorCooli/xpense/internal/repository/card"
 	expenseRepository "github.com/IgorCooli/xpense/internal/repository/expense"
@@ -56,7 +57,8 @@ func injectExpenseApi(ctx context.Context, dbClient *mongo.Client, app *fiber.Ap
 
 func injectUserApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App) {
 	userRepository := userRepository.NewRepository(dbClient)
-	userService := userService.NewService(userRepository)
+	passwordService := passwordService.NewPasswordService()
+	userService := userService.NewService(userRepository, passwordService)
 	userApi.NewHandler(ctx, userService, app)
 }
 
