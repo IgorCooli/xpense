@@ -114,13 +114,13 @@ func jwtMiddleware(c fiber.Ctx) error {
 	}
 
 	if tokenString[0] == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token de autenticação não fornecido"})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token not received"})
 	}
 
 	token, err := _jwtService.ParseJwt(tokenString[0])
 
 	if err != nil || !token.Valid {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token de autenticação inválido"})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Invalid Token"})
 	}
 
 	return c.Next()
