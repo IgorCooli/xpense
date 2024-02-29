@@ -113,7 +113,7 @@ func jwtMiddleware(c fiber.Ctx) error {
 		return c.Next()
 	}
 
-	if tokenString[0] == "" {
+	if len(tokenString) == 0 || tokenString[0] == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token not received"})
 	}
 
