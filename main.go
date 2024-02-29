@@ -53,10 +53,7 @@ func main() {
 	injectCardApi(ctx, dbClient, app)
 	injectAuthApi(ctx, dbClient, app, _jwtService)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
+	port := resolveApiPort()
 
 	app.Listen(":" + port)
 }
@@ -139,4 +136,12 @@ func isOpenRoute(c fiber.Ctx) bool {
 	}
 
 	return false
+}
+
+func resolveApiPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	return port
 }
