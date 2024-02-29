@@ -24,24 +24,34 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var (
+	_openRoutes [2]string = [2]string{"/auth", "/user/register"}
+	_jwtSecret  string
+	_jwtService jwt.JwtService
+)
+
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	dbClient := setupDb(ctx)
 
-	app := fiber.New()
+	result, err := generateSecretKey()
+	_jwtSecret = result
 
-	jwtSecret, err := generateSecretKey()
+	app := fiber.New()
+	app.Use(jwtMiddleware)
 
 	if err != nil {
 		panic("Error generating secret key")
 	}
 
+	_jwtService = jwt.NewJwtService(_jwtSecret)
+
 	injectExpenseApi(ctx, dbClient, app)
-	injectUserApi(ctx, dbClient, app, jwtSecret)
+	injectUserApi(ctx, dbClient, app, _jwtService)
 	injectCardApi(ctx, dbClient, app)
-	injectAuthApi(ctx, dbClient, app, jwtSecret)
+	injectAuthApi(ctx, dbClient, app, _jwtService)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -78,11 +88,9 @@ func injectExpenseApi(ctx context.Context, dbClient *mongo.Client, app *fiber.Ap
 	expenseApi.NewHandler(ctx, expenseService, app)
 }
 
-func injectUserApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App, jwtSecret string) {
+func injectUserApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App, jwtService jwt.JwtService) {
 	userRepository := userRepository.NewRepository(dbClient)
 	passwordService := passwordService.NewPasswordService()
-
-	jwtService := jwt.NewJwtService(jwtSecret)
 	userService := userService.NewService(userRepository, passwordService, jwtService)
 	userApi.NewHandler(ctx, userService, app)
 }
@@ -93,11 +101,42 @@ func injectCardApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App) 
 	cardApi.NewHandler(ctx, cardService, app)
 }
 
-func injectAuthApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App, jwtSecret string) {
+func injectAuthApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App, jwtService jwt.JwtService) {
 	userRepository := userRepository.NewRepository(dbClient)
 	passwordService := passwordService.NewPasswordService()
-
-	jwtService := jwt.NewJwtService(jwtSecret)
 	userService := userService.NewService(userRepository, passwordService, jwtService)
 	authApi.NewHandler(ctx, userService, app)
+}
+
+func jwtMiddleware(c fiber.Ctx) error {
+	headers := c.GetReqHeaders()
+	tokenString := headers["X-Authorization-Token"]
+
+	if isOpenRoute(c) {
+		return c.Next()
+	}
+
+	if tokenString[0] == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token de autenticação não fornecido"})
+	}
+
+	token, err := _jwtService.ParseJwt(tokenString[0])
+
+	if err != nil || !token.Valid {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token de autenticação inválido"})
+	}
+
+	return c.Next()
+}
+
+func isOpenRoute(c fiber.Ctx) bool {
+	route := string(c.Request().URI().Path())
+
+	for _, openRoute := range _openRoutes {
+		if openRoute == route {
+			return true
+		}
+	}
+
+	return false
 }
