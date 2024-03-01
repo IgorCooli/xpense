@@ -20,6 +20,7 @@ import (
 	expenseRepository "github.com/IgorCooli/xpense/internal/repository/expense"
 	userRepository "github.com/IgorCooli/xpense/internal/repository/user"
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -41,6 +42,10 @@ func main() {
 
 	app := fiber.New()
 	app.Use(jwtMiddleware)
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "*",
+		AllowCredentials: false,
+	}))
 
 	if err != nil {
 		panic("Error generating secret key")
@@ -117,12 +122,13 @@ func jwtMiddleware(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Token not received"})
 	}
 
-	token, err := _jwtService.ParseJwt(tokenString[0])
+	token, issuer, err := _jwtService.ParseJwt(tokenString[0])
 
 	if err != nil || !token.Valid {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Invalid Token"})
 	}
 
+	c.Append("x-user-id", issuer)
 	return c.Next()
 }
 

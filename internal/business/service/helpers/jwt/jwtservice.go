@@ -32,7 +32,7 @@ func (s JwtService) GenerateJwt(userId string) (string, error) {
 	return tokenString, nil
 }
 
-func (s JwtService) ParseJwt(tokenString string) (*jwt.Token, error) {
+func (s JwtService) ParseJwt(tokenString string) (*jwt.Token, string, error) {
 	var signingMethod = jwt.SigningMethodHS256
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -42,8 +42,10 @@ func (s JwtService) ParseJwt(tokenString string) (*jwt.Token, error) {
 		return []byte(s.secret), nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return token, nil
+	issuerClaim := token.Claims.(jwt.MapClaims)["issuer"].(string)
+
+	return token, issuerClaim, nil
 }
