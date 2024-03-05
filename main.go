@@ -43,6 +43,7 @@ func main() {
 	app := fiber.New()
 	app.Use(jwtMiddleware)
 	app.Use(cors.New(cors.Config{
+
 		AllowOrigins:     "*",
 		AllowCredentials: false,
 	}))
@@ -111,6 +112,10 @@ func injectAuthApi(ctx context.Context, dbClient *mongo.Client, app *fiber.App, 
 }
 
 func jwtMiddleware(c fiber.Ctx) error {
+	if c.Method() == "OPTIONS" {
+		return c.Next()
+	}
+
 	headers := c.GetReqHeaders()
 	tokenString := headers["X-Authorization-Token"]
 
