@@ -128,7 +128,7 @@ func jwtMiddleware(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "Invalid Token"})
 	}
 
-	c.Append("x-user-id", issuer)
+	c.Request().Header.Add("x-user-id", issuer)
 	return c.Next()
 }
 

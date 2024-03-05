@@ -34,6 +34,10 @@ func (h handler) FindById(c fiber.Ctx) error {
 		panic("Could not find card")
 	}
 
+	if response.UserID != extractUserId(c.GetReqHeaders()) {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": "Operation forbidden"})
+	}
+
 	c.JSON(response)
 
 	return nil
@@ -43,7 +47,18 @@ func (h handler) RegisterCard(c fiber.Ctx) error {
 	var body model.Card
 	json.Unmarshal(c.Body(), &body)
 
+	if body.UserID != extractUserId(c.GetReqHeaders()) {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"message": "Operation forbidden"})
+	}
+
 	h.service.RegisterCard(c.Context(), body)
 
 	return nil
+}
+
+func extractUserId(headers map[string][]string) string {
+	header := headers["X-User-Id"]
+	headerValue := header[0]
+
+	return headerValue
 }
