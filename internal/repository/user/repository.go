@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/IgorCooli/xpense/internal/business/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -42,12 +41,11 @@ func (r mongoRepository) FindByUsername(ctx context.Context, userName string) (m
 
 func (r mongoRepository) InsertOne(ctx context.Context, user model.User) error {
 
-	result, err := r.userDB.InsertOne(ctx, user)
+	_, err := r.userDB.InsertOne(ctx, user)
 
 	if err != nil {
 		panic("Could not insert item")
 	}
 
-	fmt.Println(result)
 	return nil
 }

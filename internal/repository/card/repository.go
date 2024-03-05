@@ -2,7 +2,6 @@ package card
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/IgorCooli/xpense/internal/business/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,12 +36,11 @@ func (r mongoRepository) FindById(ctx context.Context, cardId string) (model.Car
 
 func (r mongoRepository) InsertOne(ctx context.Context, card model.Card) error {
 
-	result, err := r.cardDB.InsertOne(ctx, card)
+	_, err := r.cardDB.InsertOne(ctx, card)
 
 	if err != nil {
 		panic("Could not insert item")
 	}
 
-	fmt.Println(result)
 	return nil
 }
