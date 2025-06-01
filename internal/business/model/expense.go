@@ -12,5 +12,5 @@ type Expense struct {
 	Description  string    `json:"description"`
 	Type         string    `json:"type"`
 	Method       string    `json:"method"`
-	Card         Card      `json:"card"`
+	Card         string    `json:"card"`
 }

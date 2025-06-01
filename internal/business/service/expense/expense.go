@@ -13,7 +13,7 @@ import (
 
 type Service interface {
 	AddExpense(ctx context.Context, expense model.Expense) error
-	Search(ctx context.Context, userId string, month string, year string) []model.Expense
+	Search(ctx context.Context, month string, year string) []model.Expense
 }
 
 type service struct {
@@ -39,8 +39,8 @@ func (s service) AddExpense(ctx context.Context, expense model.Expense) error {
 	return s.repository.InsertMany(ctx, installments)
 }
 
-func (s service) Search(ctx context.Context, userId string, month string, year string) []model.Expense {
-	return s.repository.Search(ctx, userId, month, year)
+func (s service) Search(ctx context.Context, month string, year string) []model.Expense {
+	return s.repository.Search(ctx, month, year)
 }
 
 func buildInstallments(expense model.Expense) []model.Expense {
